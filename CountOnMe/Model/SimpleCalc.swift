@@ -30,7 +30,7 @@ class SimpleCalc {
     }
     
     var canAddOperator: Bool {
-        return self.calculation.last != "+" && self.calculation.last != "-"
+        return self.calculation.last != "+" && self.calculation.last != "-" && self.calculation.count != 0
     }
     
     
@@ -112,8 +112,7 @@ class SimpleCalc {
     
     private func sortDictionnary(result: String, at index: Int) {
         self.calculation[index - 1] = result
-        self.calculation.remove(at: index)
-        self.calculation.remove(at: index)
+        self.calculation.removeSubrange(index...index+1)
     }
     
     private func cleanResult() {

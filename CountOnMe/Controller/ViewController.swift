@@ -54,34 +54,18 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        if simpleCalc.canAddOperator {
-            simpleCalc.calculation.append("+")
-        } else {
-            error(error: .operatorAlreadyExist)
-        }
+        addOperator(newOperator: "+")
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        if simpleCalc.canAddOperator {
-            simpleCalc.calculation.append("-")
-        } else {
-            error(error: .operatorAlreadyExist)
-        }
+        addOperator(newOperator: "-")
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: Any) {
-        if simpleCalc.canAddOperator {
-            simpleCalc.calculation.append("*")
-        } else {
-            error(error: .operatorAlreadyExist)
-        }
+       addOperator(newOperator: "*")
     }
     @IBAction func tappedDivisionButton(_ sender: Any) {
-        if simpleCalc.canAddOperator {
-            simpleCalc.calculation.append("/")
-        } else {
-            error(error: .operatorAlreadyExist)
-        }
+        addOperator(newOperator: "/")
     }
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         guard simpleCalc.expressionIsCorrect else {
@@ -99,8 +83,8 @@ class ViewController: UIViewController {
             textView.text.append("=")
             error(error: .divisionByZero)
         }
-        simpleCalc.calculation = []
         simpleCalc.equalButtonHasBeenPressed = false
+        simpleCalc.calculation = []
     }
     
     @objc func updateTextView() {
@@ -109,7 +93,12 @@ class ViewController: UIViewController {
         }
     }
     
-    func error(error: CalcError) {
+    @IBAction func clearButtonTapped(_ sender: Any) {
+        simpleCalc.calculation = []
+        self.textView.text = ""
+    }
+    
+    private func error(error: CalcError) {
         switch error {
         case .operatorAlreadyExist:
             let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
@@ -127,6 +116,14 @@ class ViewController: UIViewController {
             let alertVC = UIAlertController(title: "Zéro!", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
             alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             return self.present(alertVC, animated: true, completion: nil)
+        }
+    }
+    
+    private func addOperator(newOperator: String) {
+        if simpleCalc.canAddOperator {
+            simpleCalc.calculation.append(newOperator)
+        } else {
+            error(error: .operatorAlreadyExist)
         }
     }
 }
