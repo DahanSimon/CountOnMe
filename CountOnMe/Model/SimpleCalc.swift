@@ -33,10 +33,6 @@ class SimpleCalc {
         return self.expressionIsCorrect && self.calculation.count != 0
     }
     
-    //    var canAddOperator: Bool {
-    //        return self.calculation.last != "+" && self.calculation.last != "-" && self.calculation.count != 0
-    //    }
-    
     func getResult() -> String? {
         self.equalButtonHasBeenPressed = true
         var temporaryResult = ""
@@ -72,15 +68,21 @@ class SimpleCalc {
     
     private func reduceCalculation() {
         var index = 0
+        var previousValue: Int {
+            return  index - 1
+        }
+        var nextValue: Int {
+            return index + 1
+        }
         if expressionHaveEnoughElement && expressionIsCorrect {
             while index < calculation.count {
                 if calculation[index] == "*" {
-                    let multiplicationResult = multiplication(a: Float(calculation[index-1])!, b: Float(calculation[index+1])!)
+                    let multiplicationResult = multiplication(a: Float(calculation[previousValue])!, b: Float(calculation[nextValue])!)
                     sortDictionnary(result: multiplicationResult, at: index)
                     index = 0
                 }
                 else if calculation[index] == "/" {
-                    if let divisionResult = division(a: Float(calculation[index-1])!, b: Float(calculation[index+1])!) {
+                    if let divisionResult = division(a: Float(calculation[previousValue])!, b: Float(calculation[nextValue])!) {
                         sortDictionnary(result: divisionResult, at: index)
                         index = 0
                     }
