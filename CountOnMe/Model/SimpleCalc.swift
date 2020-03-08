@@ -30,9 +30,12 @@ class SimpleCalc {
     }
     
     var canAddOperator: Bool {
-        return self.calculation.last != "+" && self.calculation.last != "-" && self.calculation.count != 0
+        return self.expressionIsCorrect && self.calculation.count != 0
     }
     
+    //    var canAddOperator: Bool {
+    //        return self.calculation.last != "+" && self.calculation.last != "-" && self.calculation.count != 0
+    //    }
     
     func getResult() -> String? {
         self.equalButtonHasBeenPressed = true
@@ -116,13 +119,11 @@ class SimpleCalc {
     }
     
     private func cleanResult() {
-        for character in self.result where character == "." {
-            let index = self.result.firstIndex(of: character)
-            let nextIndex = self.result.index(after: index!)
-            if self.result[nextIndex] == "0" {
-                self.result.remove(at: nextIndex)
-                self.result.remove(at: index!)
-            }
+        let initialResult = Float(self.result)!
+        let intResult = Int(initialResult)
+        let refloatResult = Float(intResult)
+        if refloatResult == initialResult {
+            self.result = String(intResult)
         }
     }
 }

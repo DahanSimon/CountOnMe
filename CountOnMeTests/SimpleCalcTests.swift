@@ -209,4 +209,15 @@ class SimpleCalcTests: XCTestCase {
         
         XCTAssertEqual(result, "0")
     }
+    
+    func testGivenCalculationIsZeroDividedBy2_WhenTryingToAddNewOperator_ThenTheResultShouldBeNil() {
+        simpleCalc.calculation.append("0")
+        simpleCalc.calculation.append("/")
+        simpleCalc.calculation.append("2")
+        
+        simpleCalc.calculation.append("+")
+        let result = simpleCalc.getResult()
+        
+        XCTAssertEqual(result, nil)
+    }
 }

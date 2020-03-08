@@ -101,19 +101,19 @@ class ViewController: UIViewController {
     private func error(error: CalcError) {
         switch error {
         case .operatorAlreadyExist:
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
+            let alertVC = UIAlertController(title: "Attention un operateur existe déjà!", message: "Un operateur est déja mis !", preferredStyle: .alert)
             alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             self.present(alertVC, animated: true, completion: nil)
         case .missingElements:
-            let alertVC = UIAlertController(title: "Zéro!", message: "Entrez une expression correcte !", preferredStyle: .alert)
+            let alertVC = UIAlertController(title: "Il manque une valeur après votre operateur", message: "Entrez une expression correcte !", preferredStyle: .alert)
             alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             self.present(alertVC, animated: true, completion: nil)
         case .divisionByZero:
-            let alertVC = UIAlertController(title: "Zéro!", message: "La division par zero n'existe pas !", preferredStyle: .alert)
+            let alertVC = UIAlertController(title: "Division by Zero!", message: "La division par zero n'existe pas !", preferredStyle: .alert)
             alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             self.present(alertVC, animated: true, completion: nil)
         case .notEnoughElement:
-            let alertVC = UIAlertController(title: "Zéro!", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
+            let alertVC = UIAlertController(title: "Il manque des elements a votre calcul !", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
             alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             return self.present(alertVC, animated: true, completion: nil)
         }
