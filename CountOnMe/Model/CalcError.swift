@@ -13,5 +13,6 @@ enum CalcError {
     case missingElements
     case divisionByZero
     case notEnoughElement
+    case unknownOperand
 }
 

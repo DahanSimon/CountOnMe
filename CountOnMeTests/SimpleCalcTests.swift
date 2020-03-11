@@ -220,4 +220,14 @@ class SimpleCalcTests: XCTestCase {
         
         XCTAssertEqual(result, nil)
     }
+    
+    func testGivenCalculationIsMinus25_WhenTryingToAdd10_ThenTheResultShouldBeMinus15() {
+        simpleCalc.calculation.append("-25")
+        simpleCalc.calculation.append("+")
+        simpleCalc.calculation.append("10")
+        
+        let result = simpleCalc.getResult()
+        
+        XCTAssertEqual(result, "-15")
+    }
 }

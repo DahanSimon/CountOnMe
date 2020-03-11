@@ -19,7 +19,7 @@ class SimpleCalc {
     }
     var equalButtonHasBeenPressed = false
     var result = ""
-    var error = false
+    var error: CalcError?
     
     var expressionHaveEnoughElement: Bool {
         return calculation.count >= 3
@@ -30,15 +30,15 @@ class SimpleCalc {
     }
     
     var canAddOperator: Bool {
-        return self.expressionIsCorrect && self.calculation.count != 0
+        return self.expressionIsCorrect
     }
     
     func getResult() -> String? {
         self.equalButtonHasBeenPressed = true
         var temporaryResult = ""
-        self.error = false
+        self.error = nil
         reduceCalculation()
-        if error {
+        if error != nil {
             return nil
         }
         while calculation.count != 1 {
@@ -54,8 +54,8 @@ class SimpleCalc {
             let operand = calculation[1]
             let right = Float(calculation[2])!
             switch operand {
-            case "+": temporaryResult = addition(a: left, b: right)
-            case "-": temporaryResult = substraction(a: left, b: right)
+            case "+": temporaryResult = add(left, to: right)
+            case "-": temporaryResult = substract(left, from: right)
             default: fatalError("Unknown operator !")
             }
             calculation = Array(calculation.dropFirst(3))
@@ -77,17 +77,22 @@ class SimpleCalc {
         if expressionHaveEnoughElement && expressionIsCorrect {
             while index < calculation.count {
                 if calculation[index] == "*" {
-                    let multiplicationResult = multiplication(a: Float(calculation[previousValue])!, b: Float(calculation[nextValue])!)
-                    sortDictionnary(result: multiplicationResult, at: index)
-                    index = 0
-                }
-                else if calculation[index] == "/" {
-                    if let divisionResult = division(a: Float(calculation[previousValue])!, b: Float(calculation[nextValue])!) {
-                        sortDictionnary(result: divisionResult, at: index)
+                    if let multiplicationResult = multiply(calculation[previousValue], and: calculation[nextValue]){
+                        sortArray(result: multiplicationResult, at: index)
                         index = 0
                     }
                     else {
-                        self.error = true
+                        self.error = .unknownOperand
+                        break
+                    }
+                }
+                else if calculation[index] == "/" {
+                    if let divisionResult = divide(calculation[previousValue], by: calculation[nextValue]) {
+                        sortArray(result: divisionResult, at: index)
+                        index = 0
+                    }
+                    else {
+                        self.error = .divisionByZero
                     }
                     
                 }
@@ -96,36 +101,52 @@ class SimpleCalc {
         }
         
     }
-    private func addition(a: Float, b: Float) -> String {
-        return String(a + b)
+    private func add(_ leftOperand: Float, to rightOperand: Float) -> String {
+        return String(leftOperand + rightOperand)
     }
     
-    private func substraction(a: Float, b: Float) -> String {
-        return String(a - b)
+    private func substract(_ leftOperand: Float, from rightOperand: Float) -> String {
+        return String(leftOperand - rightOperand)
     }
     
-    private func multiplication(a: Float, b: Float) -> String {
-        return String(a * b)
-    }
-    
-    private func division(a: Float, b: Float) -> String? {
-        if b != 0 {
-            return String(a / b)
+    private func multiply(_ leftOperand: String, and rightOperand: String) -> String? {
+        guard let floatLeftOperand = Float(leftOperand), let floatRightOperand = Float(rightOperand) else {
+            return nil
         }
-        return nil
+        return String(floatLeftOperand * floatRightOperand)
     }
     
-    private func sortDictionnary(result: String, at index: Int) {
+    private func divide(_ leftOperand: String, by rightOperand: String) -> String? {
+        guard let floatLeftOperand = Float(leftOperand), let floatRightOperand = Float(rightOperand), floatRightOperand != 0 else {
+            return nil
+        }
+        return String(floatLeftOperand / floatRightOperand)
+    }
+    
+    private func sortArray(result: String, at index: Int) {
         self.calculation[index - 1] = result
         self.calculation.removeSubrange(index...index+1)
     }
     
     private func cleanResult() {
         let initialResult = Float(self.result)!
-        let intResult = Int(initialResult)
-        let refloatResult = Float(intResult)
-        if refloatResult == initialResult {
-            self.result = String(intResult)
+        if initialResult < Float(Int.max ){
+            let intResult = Int(initialResult)
+            let refloatResult = Float(intResult)
+            if refloatResult == initialResult {
+                self.result = String(intResult)
+            }
         }
+    }
+    
+    func checkError() -> CalcError? {
+        guard self.expressionIsCorrect else {
+            return .missingElements
+        }
+        
+        guard self.expressionHaveEnoughElement else {
+            return .notEnoughElement
+        }
+        return nil
     }
 }
