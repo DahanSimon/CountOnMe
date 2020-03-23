@@ -127,7 +127,7 @@ class SimpleCalcUITests: XCTestCase {
         app.buttons["0"].tap()
         app.buttons["="].tap()
         
-        XCTAssertTrue(app.alerts["Division by Zero!"].exists)
+        XCTAssertTrue(app.alerts["La division par zero n\'existe pas !"].exists)
     }
     
     func testTryToAddTwoOperators() {
@@ -147,6 +147,8 @@ class SimpleCalcUITests: XCTestCase {
         app.launch()
         
         app.buttons["1"].tap()
+        app.buttons["2"].tap()
+        app.buttons["/"].tap()
         app.buttons["2"].tap()
         app.buttons["/"].tap()
         app.buttons["="].tap()
@@ -180,9 +182,41 @@ class SimpleCalcUITests: XCTestCase {
         app.buttons["+"].tap()
         app.buttons["8"].tap()
         app.buttons["5"].tap()
-        app.buttons["C"].tap()
+        app.buttons["AC"].tap()
         
         XCTAssertEqual(app.textViews["textView"].value as! String, "")
     }
+    
+    func testNewCalculationAfterResult() {
+        
+        let app = XCUIApplication()
+        app.launch()
+        
+        app.buttons["1"].tap()
+        app.buttons["2"].tap()
+        app.buttons["/"].tap()
+        app.buttons["2"].tap()
+        app.buttons["4"].tap()
+        app.buttons["*"].tap()
+        app.buttons["1"].tap()
+        app.buttons["0"].tap()
+        app.buttons["+"].tap()
+        app.buttons["8"].tap()
+        app.buttons["5"].tap()
+        app.buttons["-"].tap()
+        app.buttons["2"].tap()
+        app.buttons["8"].tap()
+        app.buttons["="].tap()
+        
+        app.buttons["1"].tap()
+        app.buttons["2"].tap()
+        app.buttons["/"].tap()
+        app.buttons["2"].tap()
+        app.buttons["4"].tap()
+        app.buttons["="].tap()
+        
+        XCTAssertEqual(app.textViews["textView"].value as! String, "12/24 = 0.5")
+    }
+    
 }
 

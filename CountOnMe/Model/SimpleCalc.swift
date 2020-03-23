@@ -8,6 +8,10 @@
 
 import Foundation
 class SimpleCalc {
+    ///  This number formatter is use to use  the right syntax for the result
+    let numberFormatter = NumberFormatter()
+    
+    /// This array stocks every elements of the calculation
     var calculation: [String] = [] {
         didSet {
             if !equalButtonHasBeenPressed {
@@ -17,68 +21,113 @@ class SimpleCalc {
             }
         }
     }
-    var equalButtonHasBeenPressed = false
-    var result = ""
-    var error: CalcError?
     
+    var equalButtonHasBeenPressed = false
+    
+    /// If an error is find somewhere a notification is sent to to the controller to let know the user
+    var error: CalcError?  {
+        didSet {
+            let name = Notification.Name("errorOccured")
+            let notification = Notification(name: name)
+            NotificationCenter.default.post(notification)
+        }
+    }
+    
+    /// Checks that the expression has at least 3 element
     var expressionHaveEnoughElement: Bool {
         return calculation.count >= 3
     }
     
+    /// Checks that the expression is not ending with an operator
     var expressionIsCorrect: Bool {
         return calculation.last != "+" && calculation.last != "-" && calculation.last != "*" && calculation.last != "/"
     }
     
+    /// Checks if an operator can be added
     var canAddOperator: Bool {
-        return self.expressionIsCorrect
+        return calculation.last != "+" && calculation.last != "-" && calculation.last != "*" && calculation.last != "/"
     }
     
+    /// This method is called when the user clicks on the equal button
     func getResult() -> String? {
         self.equalButtonHasBeenPressed = true
-        var temporaryResult = ""
-        self.error = nil
+        
+        /// reduceCalculation reduces the calculation to only addition and substraction
         reduceCalculation()
-        if error != nil {
+        
+        /// if an error occures durring reducing the calculation we return nil
+        if error != nil || calculation.count == 0{
             return nil
         }
+        
+        var stringLeftOperand: String {
+            return calculation[0]
+        }
+        var operatorSymbol: String {
+            return calculation[1]
+        }
+        var stringRightOperand: String {
+            return calculation[2]
+        }
+        var temporaryResult: String
+        
+        /// While there still is some elements to add or substract
         while calculation.count != 1 {
-            guard expressionHaveEnoughElement else {
+//            guard expressionIsCorrect else {
+//                self.error = .missingElements
+//                return nil
+//            }
+//
+//            guard expressionHaveEnoughElement else {
+//                self.error = .notEnoughElement
+//                return nil
+//            }
+            /// We cast the left and right  operand in float to be able to use theme in calculation
+            guard let floatLeftOperand = Float(stringLeftOperand),
+                       let floatRightOperand = Float(stringRightOperand) else {
+                self.error = .unknownOperand
                 return nil
             }
             
-            guard expressionIsCorrect else {
-                return nil
+            switch operatorSymbol {
+                case "+": temporaryResult = add(floatLeftOperand, to: floatRightOperand)
+                case "-": temporaryResult = substract(floatLeftOperand, from: floatRightOperand)
+                default: fatalError("Unknown operator !")
             }
-            
-            let left = Float(calculation[0])!
-            let operand = calculation[1]
-            let right = Float(calculation[2])!
-            switch operand {
-            case "+": temporaryResult = add(left, to: right)
-            case "-": temporaryResult = substract(left, from: right)
-            default: fatalError("Unknown operator !")
-            }
+            /// We erase the first 3 element of the array  since we already calculated them and stocked the result in a variable called temporaryResult
             calculation = Array(calculation.dropFirst(3))
+            /// We insert the result in the array at the  first index
             calculation.insert(temporaryResult, at: 0)
         }
-        self.result = calculation[0]
-        cleanResult()
-        return self.result
+        /// We "clean" the result it means that we get rid of of decimal digit if needed for exemple 2.0 become 2 but 2.5 stays 2.5
+        if let cleanedResult = numberFormatter.number(from: calculation[0]) {
+            calculation[0] = "\(cleanedResult)"
+        }
+        self.equalButtonHasBeenPressed = false
+        /// we return the result
+        return calculation[0]
     }
     
     private func reduceCalculation() {
         var index = 0
-        var previousValue: Int {
+        
+        var leftOperandIndex: Int {
             return  index - 1
         }
-        var nextValue: Int {
+        
+        var rightOperandIndex: Int {
             return index + 1
         }
+        
         if expressionHaveEnoughElement && expressionIsCorrect {
+            /// We go threw calculation
             while index < calculation.count {
                 if calculation[index] == "*" {
-                    if let multiplicationResult = multiply(calculation[previousValue], and: calculation[nextValue]){
+                    ///  We multiply the element if possible
+                    if let multiplicationResult = multiply(calculation[leftOperandIndex], and: calculation[rightOperandIndex]){
+                        /// sortArray delete the calculation that have been done and replace it with the result
                         sortArray(result: multiplicationResult, at: index)
+                        /// We start again from the begining
                         index = 0
                     }
                     else {
@@ -87,20 +136,31 @@ class SimpleCalc {
                     }
                 }
                 else if calculation[index] == "/" {
-                    if let divisionResult = divide(calculation[previousValue], by: calculation[nextValue]) {
+                    ///  We divide the element if possible
+                    if let divisionResult = divide(calculation[leftOperandIndex], by: calculation[rightOperandIndex]) {
+                        /// sortArray delete the calculation that have been done and replace it with the result
                         sortArray(result: divisionResult, at: index)
+                        /// We start again from the begining
                         index = 0
                     }
                     else {
                         self.error = .divisionByZero
+                        break
                     }
-                    
                 }
                 index += 1
             }
+        } else {
+            if !expressionHaveEnoughElement {
+                self.error = .notEnoughElement
+            }
+            
+            if !expressionIsCorrect {
+                self.error = .missingElements
+            }
         }
-        
     }
+    
     private func add(_ leftOperand: Float, to rightOperand: Float) -> String {
         return String(leftOperand + rightOperand)
     }
@@ -124,29 +184,25 @@ class SimpleCalc {
     }
     
     private func sortArray(result: String, at index: Int) {
+        /// We place the result instead of the left operand
         self.calculation[index - 1] = result
+        /// and we remove the operator and the right operand
         self.calculation.removeSubrange(index...index+1)
     }
     
-    private func cleanResult() {
-        let initialResult = Float(self.result)!
-        if initialResult < Float(Int.max ){
-            let intResult = Int(initialResult)
-            let refloatResult = Float(intResult)
-            if refloatResult == initialResult {
-                self.result = String(intResult)
-            }
+    func addOperator(newOperator: String) {
+        if canAddOperator {
+            calculation.append(newOperator)
+        } else {
+            self.error = .operatorAlreadyExist
         }
     }
     
-    func checkError() -> CalcError? {
-        guard self.expressionIsCorrect else {
-            return .missingElements
+    func resetGame() {
+        calculation = []
+        if self.error != nil {
+            self.error = nil
         }
-        
-        guard self.expressionHaveEnoughElement else {
-            return .notEnoughElement
-        }
-        return nil
+        self.equalButtonHasBeenPressed = false
     }
 }

@@ -10,33 +10,64 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    // MARK: - Propreties
     let simpleCalc = SimpleCalc()
-    @IBOutlet weak var textView: UITextView!
-    @IBOutlet var numberButtons: [UIButton]!
-    
-    
-    
     var expressionHaveResult: Bool {
         return textView.text.firstIndex(of: "=") != nil
     }
+    // MARK: - Outlets
     
-    // View Life cycles
+    @IBOutlet weak var textView: UITextView!
+    @IBOutlet var numberButtons: [UIButton]!
+    
+    // MARK: - View Life cycles
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let name = Notification.Name("newElementAddedToCalculation")
-        NotificationCenter.default.addObserver(self, selector: #selector(updateTextView), name: name, object: nil)
-        // Do any additional setup after loading the view.
+        let notificationName = Notification.Name("newElementAddedToCalculation")
+        NotificationCenter.default.addObserver(self, selector: #selector(updateTextView), name: notificationName, object: nil)
+        let name = Notification.Name("errorOccured")
+        NotificationCenter.default.addObserver(self, selector: #selector(error), name: name, object: nil)
     }
     
+    // MARK: - Method
     
-    // View actions
+    @objc func updateTextView() {
+        if let elementToPrint = simpleCalc.calculation.last {
+            self.textView.text.append(elementToPrint.last!)
+        }
+    }
+    
+    @objc func error() {
+        switch simpleCalc.error {
+        case .operatorAlreadyExist:
+            printAlert(title: "Attention un operateur existe déjà!")
+        case .missingElements:
+            printAlert(title: "Il manque une valeur après votre operateur")
+        case .divisionByZero:
+            printAlert(title: "La division par zero n'existe pas !")
+        case .notEnoughElement:
+            printAlert(title: "Il manque des elements a votre calcul !")
+        case .unknownOperand:
+            printAlert(title: "Un element est inconnu")
+        case .none:
+            simpleCalc.resetGame()
+        }
+    }
+    
+    private func printAlert(title: String){
+        let alertVC = UIAlertController(title: title, message: "Demarrer un nouveau calcul !", preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        self.present(alertVC, animated: true, completion: nil)
+        simpleCalc.resetGame()
+    }
+    
+    // MARK: - Actions
+    
     @IBAction func tappedNumberButton(_ sender: UIButton) {
-        //        On recupere le titre du bouton (le chiffre selectionner)
         guard let numberText = sender.title(for: .normal) else {
             return
         }
-        //        Si l'expression afficher a un resultat  on remet le texte a zero
         if expressionHaveResult {
             textView.text = ""
         }
@@ -53,80 +84,31 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        addOperator(newOperator: "+")
+        simpleCalc.addOperator(newOperator: "+")
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        addOperator(newOperator: "-")
+        simpleCalc.addOperator(newOperator: "-")
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: Any) {
-        addOperator(newOperator: "*")
+        simpleCalc.addOperator(newOperator: "*")
     }
     @IBAction func tappedDivisionButton(_ sender: Any) {
-        addOperator(newOperator: "/")
+        simpleCalc.addOperator(newOperator: "/")
     }
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        if let foundError = simpleCalc.checkError() {
-            error(error: foundError)
+        if let result = simpleCalc.getResult() {
+            textView.text.append(" = \(result)")
         } else {
-            
-            if let _ = simpleCalc.getResult() {
-                textView.text.append(" = \(simpleCalc.result)")
-            } else {
-                textView.text.append("=")
-                if let foundError = simpleCalc.error {
-                    error(error: foundError)
-                }
-            }
+            textView.text.append("=")
         }
-        simpleCalc.equalButtonHasBeenPressed = false
-        simpleCalc.calculation = []
-    }
-    
-    @objc func updateTextView() {
-        if let elementToPrint = simpleCalc.calculation.last {
-            self.textView.text.append(elementToPrint.last!)
-        }
+        simpleCalc.resetGame()
     }
     
     @IBAction func clearButtonTapped(_ sender: Any) {
         simpleCalc.calculation = []
         self.textView.text = ""
-    }
-    
-    private func error(error: CalcError) {
-        switch error {
-        case .operatorAlreadyExist:
-            let alertVC = UIAlertController(title: "Attention un operateur existe déjà!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
-        case .missingElements:
-            let alertVC = UIAlertController(title: "Il manque une valeur après votre operateur", message: "Entrez une expression correcte !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
-        case .divisionByZero:
-            let alertVC = UIAlertController(title: "Division by Zero!", message: "La division par zero n'existe pas !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
-        case .notEnoughElement:
-            let alertVC = UIAlertController(title: "Il manque des elements a votre calcul !", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            return self.present(alertVC, animated: true, completion: nil)
-            
-        case .unknownOperand:
-            let alertVC = UIAlertController(title: "Un element est inconnu", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            return self.present(alertVC, animated: true, completion: nil)
-        }
-    }
-    
-    private func addOperator(newOperator: String) {
-        if simpleCalc.canAddOperator /*|| (newOperator == "+" || newOperator == "-")*/{
-            simpleCalc.calculation.append(newOperator)
-        } else {
-            error(error: .operatorAlreadyExist)
-        }
     }
 }
 
