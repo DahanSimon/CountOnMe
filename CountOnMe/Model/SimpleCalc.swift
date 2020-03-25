@@ -73,16 +73,7 @@ class SimpleCalc {
         
         /// While there still is some elements to add or substract
         while calculation.count != 1 {
-//            guard expressionIsCorrect else {
-//                self.error = .missingElements
-//                return nil
-//            }
-//
-//            guard expressionHaveEnoughElement else {
-//                self.error = .notEnoughElement
-//                return nil
-//            }
-            /// We cast the left and right  operand in float to be able to use theme in calculation
+            /// We cast the left and right operands in float to be able to use them in calculation
             guard let floatLeftOperand = Float(stringLeftOperand),
                        let floatRightOperand = Float(stringRightOperand) else {
                 self.error = .unknownOperand
@@ -92,7 +83,8 @@ class SimpleCalc {
             switch operatorSymbol {
                 case "+": temporaryResult = add(floatLeftOperand, to: floatRightOperand)
                 case "-": temporaryResult = substract(floatLeftOperand, from: floatRightOperand)
-                default: fatalError("Unknown operator !")
+                default: self.error = .unknownOperator
+                        return nil
             }
             /// We erase the first 3 element of the array  since we already calculated them and stocked the result in a variable called temporaryResult
             calculation = Array(calculation.dropFirst(3))
@@ -126,7 +118,7 @@ class SimpleCalc {
                     ///  We multiply the element if possible
                     if let multiplicationResult = multiply(calculation[leftOperandIndex], and: calculation[rightOperandIndex]){
                         /// sortArray delete the calculation that have been done and replace it with the result
-                        sortArray(result: multiplicationResult, at: index)
+                        sortCalculation(result: multiplicationResult, at: index)
                         /// We start again from the begining
                         index = 0
                     }
@@ -139,7 +131,7 @@ class SimpleCalc {
                     ///  We divide the element if possible
                     if let divisionResult = divide(calculation[leftOperandIndex], by: calculation[rightOperandIndex]) {
                         /// sortArray delete the calculation that have been done and replace it with the result
-                        sortArray(result: divisionResult, at: index)
+                        sortCalculation(result: divisionResult, at: index)
                         /// We start again from the begining
                         index = 0
                     }
@@ -183,7 +175,7 @@ class SimpleCalc {
         return String(floatLeftOperand / floatRightOperand)
     }
     
-    private func sortArray(result: String, at index: Int) {
+    private func sortCalculation(result: String, at index: Int) {
         /// We place the result instead of the left operand
         self.calculation[index - 1] = result
         /// and we remove the operator and the right operand
@@ -198,11 +190,9 @@ class SimpleCalc {
         }
     }
     
-    func resetGame() {
+    func resetCalculator() {
         calculation = []
-        if self.error != nil {
-            self.error = nil
-        }
+        self.error = nil
         self.equalButtonHasBeenPressed = false
     }
 }

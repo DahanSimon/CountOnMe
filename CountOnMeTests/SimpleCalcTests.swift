@@ -245,9 +245,30 @@ class SimpleCalcTests: XCTestCase {
         XCTAssertEqual(simpleCalc.error, nil)
     }
     
-    func testGivenCalculationIsMinus25_WhenTryingToAddTheLetterA_ThenTheResultShouldBeNil() {
+    func testGivenCalculationIsMinus25_WhenTryingToMultiplyByTheLetterA_ThenTheResultShouldBeNil() {
         simpleCalc.calculation.append("-25")
         simpleCalc.addOperator(newOperator: "*")
+        simpleCalc.calculation.append("A")
+        
+        let result = simpleCalc.getResult()
+        
+        XCTAssertEqual(result, nil)
+        XCTAssertEqual(simpleCalc.error, CalcError.unknownOperand)
+    }
+    
+    func testGivenCalculationIsMinus25_WhenTryingToAddTheLetterA_ThenTheResultShouldBeNil() {
+        simpleCalc.calculation.append("-25")
+        simpleCalc.addOperator(newOperator: "+")
+        simpleCalc.calculation.append("A")
+        
+        let result = simpleCalc.getResult()
+        
+        XCTAssertEqual(result, nil)
+        XCTAssertEqual(simpleCalc.error, CalcError.unknownOperand)
+    }
+    
+    func testGivenCalculationIsMinus25_WhenTryingToAppendTheLetterA_ThenTheResultShouldBeNil() {
+        simpleCalc.calculation.append("-25")
         simpleCalc.calculation.append("A")
         
         let result = simpleCalc.getResult()

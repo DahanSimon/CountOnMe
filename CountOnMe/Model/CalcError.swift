@@ -14,5 +14,6 @@ enum CalcError {
     case divisionByZero
     case notEnoughElement
     case unknownOperand
+    case unknownOperator
 }
 

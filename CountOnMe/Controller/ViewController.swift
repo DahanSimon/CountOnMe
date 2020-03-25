@@ -50,8 +50,10 @@ class ViewController: UIViewController {
             printAlert(title: "Il manque des elements a votre calcul !")
         case .unknownOperand:
             printAlert(title: "Un element est inconnu")
+        case .unknownOperator:
+            printAlert(title: "L'operateur est inconnu")
         case .none:
-            simpleCalc.resetGame()
+            break
         }
     }
     
@@ -59,7 +61,7 @@ class ViewController: UIViewController {
         let alertVC = UIAlertController(title: title, message: "Demarrer un nouveau calcul !", preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alertVC, animated: true, completion: nil)
-        simpleCalc.resetGame()
+        simpleCalc.resetCalculator()
     }
     
     // MARK: - Actions
@@ -103,7 +105,7 @@ class ViewController: UIViewController {
         } else {
             textView.text.append("=")
         }
-        simpleCalc.resetGame()
+        simpleCalc.resetCalculator()
     }
     
     @IBAction func clearButtonTapped(_ sender: Any) {
