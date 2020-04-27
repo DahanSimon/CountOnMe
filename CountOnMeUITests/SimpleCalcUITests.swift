@@ -1,9 +1,9 @@
 //
 //  SimpleCalcUITests.swift
-//  SimpleCalcUITests
+//  CountOnMeUITests
 //
-//  Created by Vincent Saluzzo on 29/03/2019.
-//  Copyright © 2019 Vincent Saluzzo. All rights reserved.
+//  Created by Simon Dahan on 04/03/2020.
+//  Copyright © 2020 Vincent Saluzzo. All rights reserved.
 //
 
 import XCTest
@@ -139,7 +139,7 @@ class SimpleCalcUITests: XCTestCase {
         app.buttons["/"].tap()
         app.buttons["+"].tap()
         
-        XCTAssertTrue(app.alerts["Attention un operateur existe déjà!"].exists)
+        XCTAssertTrue(app.alerts["Attention un opérateur existe déjà!"].exists)
     }
     
     func testTryToPressEqualWhenLastEntrieIsAnOperator() {
@@ -164,7 +164,7 @@ class SimpleCalcUITests: XCTestCase {
         app.buttons["2"].tap()
         app.buttons["="].tap()
         
-        XCTAssertTrue(app.alerts["Il manque des elements a votre calcul !"].exists)
+        XCTAssertTrue(app.alerts["Il manque des elements à votre calcul !"].exists)
     }
     
     func testClearButton() {

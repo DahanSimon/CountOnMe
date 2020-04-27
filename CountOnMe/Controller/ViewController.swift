@@ -1,9 +1,9 @@
 //
 //  ViewController.swift
-//  SimpleCalc
+//  CountOnMe
 //
-//  Created by Vincent Saluzzo on 29/03/2019.
-//  Copyright © 2019 Vincent Saluzzo. All rights reserved.
+//  Created by Simon Dahan on 04/03/2020.
+//  Copyright © 2020 Vincent Saluzzo. All rights reserved.
 //
 
 import UIKit
@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         let notificationName = Notification.Name("newElementAddedToCalculation")
         NotificationCenter.default.addObserver(self, selector: #selector(updateTextView), name: notificationName, object: nil)
         let name = Notification.Name("errorOccured")
-        NotificationCenter.default.addObserver(self, selector: #selector(error), name: name, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleError), name: name, object: nil)
     }
     
     // MARK: - Method
@@ -38,20 +38,20 @@ class ViewController: UIViewController {
         }
     }
     
-    @objc func error() {
+    @objc func handleError() {
         switch simpleCalc.error {
         case .operatorAlreadyExist:
-            printAlert(title: "Attention un operateur existe déjà!")
+            printAlert(title: "Attention un opérateur existe déjà!")
         case .missingElements:
             printAlert(title: "Il manque une valeur après votre operateur")
         case .divisionByZero:
             printAlert(title: "La division par zero n'existe pas !")
         case .notEnoughElement:
-            printAlert(title: "Il manque des elements a votre calcul !")
+            printAlert(title: "Il manque des elements à votre calcul !")
         case .unknownOperand:
-            printAlert(title: "Un element est inconnu")
+            printAlert(title: "Un élément est inconnu")
         case .unknownOperator:
-            printAlert(title: "L'operateur est inconnu")
+            printAlert(title: "L'opérateur est inconnu")
         case .none:
             break
         }
@@ -73,10 +73,14 @@ class ViewController: UIViewController {
         if expressionHaveResult {
             textView.text = ""
         }
+        /// if the dictionnary already has an element in it
         if simpleCalc.calculation.count != 0 {
+            /// If the last entered element is a number and not an operator
             if let _ = Float(simpleCalc.calculation.last!) {
+                /// we add to the string the digit that user tapped on
                 simpleCalc.calculation[simpleCalc.calculation.count - 1] = simpleCalc.calculation.last! + numberText
             } else {
+                /// if the last element of the calculation is an operator we add a new element to the table
                 simpleCalc.calculation.append(numberText)
             }
             
@@ -86,18 +90,26 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        simpleCalc.addOperator(newOperator: "+")
+        if !expressionHaveResult {
+            simpleCalc.addOperator(newOperator: "+")
+        }
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        simpleCalc.addOperator(newOperator: "-")
+        if !expressionHaveResult {
+            simpleCalc.addOperator(newOperator: "-")
+        }
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: Any) {
-        simpleCalc.addOperator(newOperator: "*")
+        if !expressionHaveResult {
+            simpleCalc.addOperator(newOperator: "*")
+        }
     }
     @IBAction func tappedDivisionButton(_ sender: Any) {
-        simpleCalc.addOperator(newOperator: "/")
+        if !expressionHaveResult {
+            simpleCalc.addOperator(newOperator: "/")
+        }
     }
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         if let result = simpleCalc.getResult() {

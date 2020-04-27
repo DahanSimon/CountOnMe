@@ -1,9 +1,9 @@
 //
 //  SimpleCalcTests.swift
-//  SimpleCalcTests
+//  CountOnMeTests
 //
-//  Created by Vincent Saluzzo on 29/03/2019.
-//  Copyright © 2019 Vincent Saluzzo. All rights reserved.
+//  Created by Simon Dahan on 04/03/2020.
+//  Copyright © 2020 Vincent Saluzzo. All rights reserved.
 //
 
 import XCTest
@@ -269,6 +269,7 @@ class SimpleCalcTests: XCTestCase {
     
     func testGivenCalculationIsMinus25_WhenTryingToAppendTheLetterA_ThenTheResultShouldBeNil() {
         simpleCalc.calculation.append("-25")
+        simpleCalc.calculation.append("-")
         simpleCalc.calculation.append("A")
         
         let result = simpleCalc.getResult()
@@ -280,10 +281,21 @@ class SimpleCalcTests: XCTestCase {
     
     func testGivenClalculationIs1PlusNothing_WhenTryingToAddNewOperator_ThenAnErrorOccured() {
         
-        simpleCalc.calculation.append("8")
+        simpleCalc.calculation.append("1")
         simpleCalc.addOperator(newOperator: "+")
         simpleCalc.addOperator(newOperator: "+")
         
         XCTAssertEqual(simpleCalc.error, CalcError.operatorAlreadyExist)
+    }
+    
+    func testGivenClalculationIs1PlusOne_WhenCallingResetCalculator_ThenCalculationShouldBeEmpty() {
+        
+        simpleCalc.calculation.append("1")
+        simpleCalc.addOperator(newOperator: "+")
+        simpleCalc.addOperator(newOperator: "1")
+        
+        simpleCalc.resetCalculator()
+        
+        XCTAssertEqual(simpleCalc.calculation, [])
     }
 }

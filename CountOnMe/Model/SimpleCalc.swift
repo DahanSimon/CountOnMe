@@ -25,13 +25,7 @@ class SimpleCalc {
     var equalButtonHasBeenPressed = false
     
     /// If an error is find somewhere a notification is sent to to the controller to let know the user
-    var error: CalcError?  {
-        didSet {
-            let name = Notification.Name("errorOccured")
-            let notification = Notification(name: name)
-            NotificationCenter.default.post(notification)
-        }
-    }
+    var error: CalcError? = nil
     
     /// Checks that the expression has at least 3 element
     var expressionHaveEnoughElement: Bool {
@@ -45,7 +39,7 @@ class SimpleCalc {
     
     /// Checks if an operator can be added
     var canAddOperator: Bool {
-        return calculation.last != "+" && calculation.last != "-" && calculation.last != "*" && calculation.last != "/"
+        return calculation.last != "+" && calculation.last != "-" && calculation.last != "*" && calculation.last != "/" && !calculation.contains("=")
     }
     
     /// This method is called when the user clicks on the equal button
@@ -55,8 +49,9 @@ class SimpleCalc {
         /// reduceCalculation reduces the calculation to only addition and substraction
         reduceCalculation()
         
-        /// if an error occures durring reducing the calculation we return nil
-        if error != nil || calculation.count == 0{
+        /// if an error occures during reducing the calculation we return nil
+        if error != nil {
+            sendErrorNotificationToViewController()
             return nil
         }
         
@@ -69,6 +64,7 @@ class SimpleCalc {
         var stringRightOperand: String {
             return calculation[2]
         }
+        
         var temporaryResult: String
         
         /// While there still is some elements to add or substract
@@ -77,14 +73,14 @@ class SimpleCalc {
             guard let floatLeftOperand = Float(stringLeftOperand),
                        let floatRightOperand = Float(stringRightOperand) else {
                 self.error = .unknownOperand
+                sendErrorNotificationToViewController()
                 return nil
             }
             
             switch operatorSymbol {
                 case "+": temporaryResult = add(floatLeftOperand, to: floatRightOperand)
                 case "-": temporaryResult = substract(floatLeftOperand, from: floatRightOperand)
-                default: self.error = .unknownOperator
-                        return nil
+                default: self.error = .unknownOperator; sendErrorNotificationToViewController(); return nil
             }
             /// We erase the first 3 element of the array  since we already calculated them and stocked the result in a variable called temporaryResult
             calculation = Array(calculation.dropFirst(3))
@@ -182,11 +178,18 @@ class SimpleCalc {
         self.calculation.removeSubrange(index...index+1)
     }
     
+    private func sendErrorNotificationToViewController() {
+        let name = Notification.Name("errorOccured")
+        let notification = Notification(name: name)
+        NotificationCenter.default.post(notification)
+    }
+    
     func addOperator(newOperator: String) {
         if canAddOperator {
             calculation.append(newOperator)
         } else {
             self.error = .operatorAlreadyExist
+            sendErrorNotificationToViewController()
         }
     }
     
