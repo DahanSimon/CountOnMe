@@ -24,10 +24,10 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let notificationName = Notification.Name("newElementAddedToCalculation")
-        NotificationCenter.default.addObserver(self, selector: #selector(updateTextView), name: notificationName, object: nil)
         let name = Notification.Name("errorOccured")
         NotificationCenter.default.addObserver(self, selector: #selector(handleError), name: name, object: nil)
+        let notificationName = Notification.Name("newElementAddedToCalculation")
+        NotificationCenter.default.addObserver(self, selector: #selector(updateTextView), name: notificationName, object: nil)
     }
     
     // MARK: - Method
@@ -114,8 +114,6 @@ class ViewController: UIViewController {
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         if let result = simpleCalc.getResult() {
             textView.text.append(" = \(result)")
-        } else {
-            textView.text.append("=")
         }
         simpleCalc.resetCalculator()
     }

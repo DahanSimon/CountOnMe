@@ -46,10 +46,10 @@ class SimpleCalc {
     func getResult() -> String? {
         self.equalButtonHasBeenPressed = true
         
-        /// reduceCalculation reduces the calculation to only addition and substraction
+        // reduceCalculation reduces the calculation to only addition and substraction
         reduceCalculation()
         
-        /// if an error occures during reducing the calculation we return nil
+        // if an error occures during reducing the calculation we return nil
         if error != nil {
             sendErrorNotificationToViewController()
             return nil
@@ -67,9 +67,9 @@ class SimpleCalc {
         
         var temporaryResult: String
         
-        /// While there still is some elements to add or substract
+        // While there still is some elements to add or substract
         while calculation.count != 1 {
-            /// We cast the left and right operands in float to be able to use them in calculation
+            // We cast the left and right operands in float to be able to use them in calculation
             guard let floatLeftOperand = Float(stringLeftOperand),
                        let floatRightOperand = Float(stringRightOperand) else {
                 self.error = .unknownOperand
@@ -82,17 +82,17 @@ class SimpleCalc {
                 case "-": temporaryResult = substract(floatLeftOperand, from: floatRightOperand)
                 default: self.error = .unknownOperator; sendErrorNotificationToViewController(); return nil
             }
-            /// We erase the first 3 element of the array  since we already calculated them and stocked the result in a variable called temporaryResult
+            // We erase the first 3 element of the array  since we already calculated them and stocked the result in a variable called temporaryResult
             calculation = Array(calculation.dropFirst(3))
-            /// We insert the result in the array at the  first index
+            // We insert the result in the array at the  first index
             calculation.insert(temporaryResult, at: 0)
         }
-        /// We "clean" the result it means that we get rid of of decimal digit if needed for exemple 2.0 become 2 but 2.5 stays 2.5
+        // We "clean" the result it means that we get rid of of decimal digit if needed for exemple 2.0 become 2 but 2.5 stays 2.5
         if let cleanedResult = numberFormatter.number(from: calculation[0]) {
             calculation[0] = "\(cleanedResult)"
         }
         self.equalButtonHasBeenPressed = false
-        /// we return the result
+        // we return the result
         return calculation[0]
     }
     
@@ -108,14 +108,14 @@ class SimpleCalc {
         }
         
         if expressionHaveEnoughElement && expressionIsCorrect {
-            /// We go threw calculation
+            // We go threw calculation
             while index < calculation.count {
                 if calculation[index] == "*" {
-                    ///  We multiply the element if possible
+                    //  We multiply the element if possible
                     if let multiplicationResult = multiply(calculation[leftOperandIndex], and: calculation[rightOperandIndex]){
-                        /// sortArray delete the calculation that have been done and replace it with the result
+                        // sortArray delete the calculation that have been done and replace it with the result
                         sortCalculation(result: multiplicationResult, at: index)
-                        /// We start again from the begining
+                        // We start again from the begining
                         index = 0
                     }
                     else {
@@ -124,11 +124,11 @@ class SimpleCalc {
                     }
                 }
                 else if calculation[index] == "/" {
-                    ///  We divide the element if possible
+                    //  We divide the element if possible
                     if let divisionResult = divide(calculation[leftOperandIndex], by: calculation[rightOperandIndex]) {
-                        /// sortArray delete the calculation that have been done and replace it with the result
+                        // sortArray delete the calculation that have been done and replace it with the result
                         sortCalculation(result: divisionResult, at: index)
-                        /// We start again from the begining
+                        // We start again from the begining
                         index = 0
                     }
                     else {
@@ -172,9 +172,9 @@ class SimpleCalc {
     }
     
     private func sortCalculation(result: String, at index: Int) {
-        /// We place the result instead of the left operand
+        // We place the result instead of the left operand
         self.calculation[index - 1] = result
-        /// and we remove the operator and the right operand
+        // and we remove the operator and the right operand
         self.calculation.removeSubrange(index...index+1)
     }
     
